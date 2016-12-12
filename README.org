@@ -1,0 +1,11 @@
+* marking mode
+
+  Major mode for MARKING.txt files. It will try to find it's way
+  around the marking directory colorizing the text, making button
+  shortcuts to the student code (re-buttonize with
+  ~marking-buttonize~) and re-runing (~marking-rerun-part~) individual
+  parts of the marker.
+
+* Nice to have
+
+  - Automatic path shorcuts similar to compilation-mode.
