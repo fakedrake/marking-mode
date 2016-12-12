@@ -61,6 +61,19 @@
     (goto-char (point-min))
     (search-forward-regexp search)))
 
+(defun marking-submission-directory-fn (&optional buf)
+  (with-current-buffer (or buf (current-buffer))
+    (or marking-submission-directory
+        (when (buffer-file-name) (file-name-directory (buffer-file-name)))
+        default-directory)))
+
+(defun marking-kill-submission-buffers ()
+  (interactive)
+  (dolist (b (buffer-list))
+    (when (string= (marking-submission-directory-fn)
+                   (marking-submission-directory-fn b))
+      (kill-buffer b))))
+
 (defun marking-current-part ()
   (save-match-data
     (save-excursion
@@ -90,6 +103,8 @@
 (defun marking-automark-directory ()
   (marking-parent-directory "/automarker" 'file-directory-p))
 
+(defun marking-good-sample-directory ()
+  (marking-parent-directory "/samples/good_sample" 'file-directory-p))
 
 (defun marking-parent-directory (ext check)
   (let ((root default-directory))
@@ -100,10 +115,6 @@
     (if (funcall check (expand-file-name (concat root ext)))
         (expand-file-name (concat root ext))
       (error (concat "Can't find parent directory matching criteria: " ext)))))
-
-(defun marking-python-virtualenv ()
-  (marking-parent-directory "/venv/bin/python" 'file-executable-p))
-
 
 (defun marking-current-test ()
   (let* ((word (cdr (assoc (marking-current-part) marking-part-names)))
@@ -118,11 +129,26 @@
       (concat automark-prefix ".py"))
      (t (error "Couldn't determine test file.")))))
 
+(defun marking-open-good-sample ()
+  (interactive)
+  (let ((fname (save-excursion
+                 (beginning-of-defun)
+                 (when (looking-at "def")
+                   (buffer-substring
+                    (point)
+                    (progn (search-forward "(") (point)))))))
+    (find-file
+     (expand-file-name
+      (concat (marking-good-sample-directory) "/"
+              (file-name-nondirectory (buffer-file-name)))))
+    (when fname
+      (goto-char (point-min))
+      (search-forward fname)
+      (beginning-of-line))))
 
 (defun marking-rerun-part ()
   (interactive)
-  (let ((dir (or marking-submission-directory
-                 (file-name-directory (buffer-file-name))))
+  (let ((dir (marking-submission-directory-fn))
         (proc-name (concat "*marking " (marking-current-part) "*"))
         (test-file (marking-current-test))
         (venv (marking-python-virtualenv))
