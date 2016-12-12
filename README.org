@@ -1,10 +1,18 @@
 * marking mode
 
   Major mode for MARKING.txt files. It will try to find it's way
-  around the marking directory colorizing the text, making button
-  shortcuts to the student code (re-buttonize with
-  ~marking-buttonize~) and re-runing (~marking-rerun-part~) individual
-  parts of the marker.
+  around the marking directory colorizing the text,
+
+  - making button shortcuts to the student code (re-buttonize with
+    ~marking-make-buttons~)
+  - re-runing individual parts of the marker. ~marking-rerun-part~
+    will rerun the part in which the cursor is located. This uses the
+    first virtualenv named ~venv~ it finds walking up the directory
+    tree.
+  - Kill all buffers related to a submission
+    (~marking-kill-submission-buffers~)
+  - Jump to a sane implementation (good_samle) of the function in
+    which the cursor is in (~marking-open-good-sample~).
 
 * Nice to have
 
